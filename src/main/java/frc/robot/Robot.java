@@ -78,12 +78,11 @@ public class Robot extends TimedRobot
   public void teleopPeriodic() {
    if(mleftLimitSwitch.get() || mrightLimitSwitch.get())
    { 
-     if(m_DriveJoystick.getYButtonPressed())
-     {
+     
      mleftClimber.set(1);
      mrightClimber.set(1);
     m_WINCHMotors.set(1);
-     }
+     
    }
    else 
     {
