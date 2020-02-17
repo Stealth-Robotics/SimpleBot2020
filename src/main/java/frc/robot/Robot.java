@@ -7,12 +7,14 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.XboxController;
 
 
 /**
@@ -30,15 +32,26 @@ public class Robot extends TimedRobot
   private static final int kMotorPort2 = 58;
   private static final int kMotorPort3 = 57;
   private static final int kMotorPort4 = 55;
+  private static final int kNEOWinchPort = 29;
+  private static final int kLeftClimb = 30;
+  private static final int kRightClimb = 36;
   private static final int k_NeoPort = 28;
-
+  public static final int leftLimitSwitch = 3;
+  public static final int rightLimitSwitch = 4;
+   
+  private DigitalInput mleftLimitSwitch; 
+  private  DigitalInput mrightLimitSwitch;
  
 //motor port = 57
   private WPI_TalonSRX m_motorLeft;
   private WPI_TalonSRX m_motorRight;
   private WPI_TalonSRX m_belt;
+  
   private WPI_TalonSRX m_belt2;
-  private final SpeedControllerGroup m_ShooterMotors = new SpeedControllerGroup(new CANSparkMax(k_NeoPort, MotorType.kBrushless)
+  private XboxController m_DriveJoystick;
+  private WPI_TalonSRX mleftClimber ;
+  private WPI_TalonSRX mrightClimber;
+  private final SpeedControllerGroup m_WINCHMotors = new SpeedControllerGroup(/*new CANSparkMax(k_NeoPort, MotorType.kBrushless, */new CANSparkMax(k_NeoPort, MotorType.kBrushless)
 		);
   
 
@@ -50,7 +63,12 @@ public class Robot extends TimedRobot
     m_motorLeft = new WPI_TalonSRX(kMotorPort1);
     m_motorRight = new WPI_TalonSRX(kMotorPort2);
     m_belt = new WPI_TalonSRX(kMotorPort3);
+    mleftLimitSwitch = new DigitalInput(leftLimitSwitch);
+    mrightLimitSwitch  = new DigitalInput(rightLimitSwitch);
     m_belt2 = new WPI_TalonSRX(kMotorPort4);
+    mleftClimber =  new WPI_TalonSRX(30);
+    mrightClimber =  new WPI_TalonSRX(36);
+
   }
   @Override
   public void teleopInit()
@@ -58,11 +76,28 @@ public class Robot extends TimedRobot
       
   }
   public void teleopPeriodic() {
-      m_motorLeft.set(-0.8);
+   if(mleftLimitSwitch.get() || mrightLimitSwitch.get())
+   { 
+     if(m_DriveJoystick.getYButtonPressed())
+     {
+     mleftClimber.set(1);
+     mrightClimber.set(1);
+    m_WINCHMotors.set(1);
+     }
+   }
+   else 
+    {
+      mleftClimber.set(0);
+     mrightClimber.set(0);
+    m_WINCHMotors.set(0);
+
+   }
+     /*m_motorLeft.set(-0.8);
      m_motorRight.set(0.3);
      m_belt.set(.5);
      m_belt2.set(.5);
      m_ShooterMotors.set(-1);
+  */
   }
   @Override
   public void disabledInit()
@@ -71,7 +106,8 @@ public class Robot extends TimedRobot
     m_motorRight.set(0);
     m_belt.set(0);
     m_belt2.set(0);
-    m_ShooterMotors.set(0);
+    
+  
 
   }
 }
